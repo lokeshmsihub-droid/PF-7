@@ -1,0 +1,244 @@
+[
+  {
+    "control_id": "CM-CONTROL-01",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Change Authorization",
+    "objective": "Ensure all requested changes are formally authorized prior to starting development.",
+    "description": "Changes to production systems, applications, and infrastructure must be authorized by an appropriate owner or authority before implementation or design begins.",
+    "lifecycle_stage": "Authorization",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "AUTHORIZATION_RECORD",
+        "required_source": "jira",
+        "required_fields": ["authorization_id", "change_id", "authorized_by", "status", "authorized_at"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-001", "CM-002"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-02",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Change Development and Configuration",
+    "objective": "Track development activity and connect code commits to authorized changes.",
+    "description": "All modifications to source code or configurations must be tracked and associated with an authorized change request or ticket.",
+    "lifecycle_stage": "Design / Develop / Configure",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "COMMIT_LINK",
+        "required_source": "github",
+        "required_fields": ["change_id", "repository_id", "commit_id"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-003"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-03",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Change Testing",
+    "objective": "Verify that changes are adequately tested prior to deployment to production.",
+    "description": "Testing (unit, integration, regression, or manual user acceptance testing) must be executed and verified as successful prior to deploying changes to production.",
+    "lifecycle_stage": "Testing",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "TEST_REPORT",
+        "required_source": "github_actions",
+        "required_fields": ["test_id", "change_id", "pipeline_id", "status"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-004", "CM-005"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-04",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Change Approval",
+    "objective": "Ensure changes are approved by an authorized individual other than the developer.",
+    "description": "Every normal change must receive formal approval from an authorized peer or authority after testing and prior to deployment.",
+    "lifecycle_stage": "Approval",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "APPROVAL_LOG",
+        "required_source": "github_pr",
+        "required_fields": ["approval_id", "change_id", "approver_id", "decision"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-006"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-05",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Segregation of Duties",
+    "objective": "Prevent the same individual from developing and approving/deploying a change.",
+    "description": "The person who requests or implements a change must not be the one who approves or deploys the change to production.",
+    "lifecycle_stage": "Segregation of Duties",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "SOD_VERIFICATION",
+        "required_source": "compliance_engine",
+        "required_fields": ["change_id", "requester_id", "approver_id", "deployed_by"],
+        "retention_days": 365,
+        "validation_method": "SIGNATURE"
+      }
+    ],
+    "related_checks": ["CM-007"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-06",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Deployment Authorization",
+    "objective": "Prevent unauthorized deployments to the production environment.",
+    "description": "Production deployments must only be executed for authorized and approved changes, utilizing automated pipelines where possible.",
+    "lifecycle_stage": "Deployment",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "DEPLOYMENT_EVENT",
+        "required_source": "argo_cd",
+        "required_fields": ["deployment_id", "change_id", "status"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-008", "CM-014"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-07",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Change Traceability",
+    "objective": "Enable end-to-end traceability of a change from request to deployment.",
+    "description": "Maintain a continuous audit trail linking authorization, code commits, testing records, approval, and final deployment.",
+    "lifecycle_stage": "Change Traceability",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "TRACEABILITY_REPORT",
+        "required_source": "compliance_engine",
+        "required_fields": ["change_id", "relationship_id"],
+        "retention_days": 365,
+        "validation_method": "SIGNATURE"
+      }
+    ],
+    "related_checks": ["CM-009"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-08",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Emergency Change Management",
+    "objective": "Provide an expedited path for urgent changes with subsequent verification.",
+    "description": "Emergency changes bypass normal approval timelines but require specific emergency justifications and are subject to immediate post-deployment review.",
+    "lifecycle_stage": "Emergency Changes",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "EMERGENCY_JUSTIFICATION",
+        "required_source": "jira",
+        "required_fields": ["change_id", "justification"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-010", "CM-011"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-09",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Change Documentation",
+    "objective": "Ensure all details of the change are documented properly.",
+    "description": "All changes must have documentation including title, description, application affected, risk level, and environment target.",
+    "lifecycle_stage": "Documentation / Evidence",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "DOCUMENTATION_METADATA",
+        "required_source": "jira",
+        "required_fields": ["change_id", "title", "description"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-013"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-10",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Evidence Management",
+    "objective": "Maintain permanent, verifiable records of compliance evidence.",
+    "description": "Evidence demonstrating controls compliance must be captured, cataloged with metadata, and securely stored.",
+    "lifecycle_stage": "Documentation / Evidence",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "EVIDENCE_METADATA_RECORD",
+        "required_source": "compliance_engine",
+        "required_fields": ["evidence_id", "hash", "storage_reference"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-012"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  },
+  {
+    "control_id": "CM-CONTROL-11",
+    "framework": "SOC 2",
+    "criterion": "CC8.1",
+    "name": "Post-Change Review",
+    "objective": "Evaluate change success and resolve unauthorized issues.",
+    "description": "Perform reviews of changes post-deployment, specifically for emergency or failed changes, to ensure system stability and compliance.",
+    "lifecycle_stage": "Post-Change Review",
+    "applicability": "PRODUCTION",
+    "evidence_requirements": [
+      {
+        "evidence_type": "POST_CHANGE_REVIEW_SIGN_OFF",
+        "required_source": "jira",
+        "required_fields": ["change_id", "resolved_at"],
+        "retention_days": 365,
+        "validation_method": "HASH"
+      }
+    ],
+    "related_checks": ["CM-015"],
+    "status": "ACTIVE",
+    "version": "1.0.0"
+  }
+]

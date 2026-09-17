@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "compliance-platform"
+version = "0.1.0"
+description = "Enterprise Compliance Automation Platform - Change Management Foundation"
+authors = ["Antigravity <antigravity@google.com>"]
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.6.0"
+sqlalchemy = "^2.0.25"
+alembic = "^1.13.1"
+psycopg2-binary = "^2.9.9"
+pymongo = "^4.6.1"
+python-dotenv = "^1.0.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-mock = "^3.12.0"
+black = "^24.1.1"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning:pydantic.*:",
+    "ignore::DeprecationWarning:sqlalchemy.*:",
+    "ignore::DeprecationWarning:starlette.*:",
+    "ignore::sqlalchemy.exc.SAWarning",
+    "ignore::UserWarning"
+]

@@ -1,0 +1,12 @@
+{
+  "escalation_path": {
+    "CRITICAL": ["owner", "manager", "compliance_officer"],
+    "HIGH": ["owner", "manager"],
+    "MEDIUM": ["owner"],
+    "LOW": []
+  },
+  "recipients": {
+    "manager": "manager@acme.com",
+    "compliance_officer": "compliance-officer@acme.com"
+  }
+}

@@ -1,0 +1,786 @@
+[
+  {
+    "check_id": "CM-001",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-01",
+    "name": "Change Authorization",
+    "description": "Verifies that the change request has been formally authorized before work starts.",
+    "category": "authorization",
+    "severity": "high",
+    "required_fields": [
+      "authorization.required",
+      "authorization.authorized",
+      "authorization.authorized_at",
+      "request.created_at",
+      "deployment.deployed_at"
+    ],
+    "applicability": {
+      "field": "authorization.required",
+      "operator": "equals",
+      "value": false,
+      "result": "NOT_APPLICABLE"
+    },
+    "logic": {
+      "all": [
+        {
+          "field": "authorization.authorized",
+          "operator": "equals",
+          "value": true
+        },
+        {
+          "field": "authorization.authorized_at",
+          "operator": "before_or_equal",
+          "field_reference": "deployment.deployed_at"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "AUTHORIZATION_RECORD",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change",
+      "authorization"
+    ],
+    "evaluation_logic": {
+      "rules": [
+        {
+          "subject": "authorization",
+          "field": "status",
+          "operator": "EQUALS",
+          "value": "APPROVED"
+        }
+      ],
+      "relationships": [
+        {
+          "subject": "authorization",
+          "related_subject": "change",
+          "operator": "BEFORE",
+          "source_field": "authorized_at",
+          "target_field": "implemented_at"
+        }
+      ]
+    }
+  },
+  {
+    "check_id": "CM-002",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-02",
+    "name": "Testing Before Deployment",
+    "description": "Verify that required testing occurred and passed before production deployment.",
+    "category": "testing",
+    "severity": "high",
+    "required_fields": [
+      "testing.required",
+      "testing.test_status",
+      "testing.tested_at",
+      "deployment.deployed_at"
+    ],
+    "applicability": {
+      "field": "testing.required",
+      "operator": "equals",
+      "value": false,
+      "result": "NOT_APPLICABLE"
+    },
+    "logic": {
+      "all": [
+        {
+          "field": "testing.test_status",
+          "operator": "equals",
+          "value": "PASS"
+        },
+        {
+          "field": "testing.tested_at",
+          "operator": "before",
+          "field_reference": "deployment.deployed_at"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "TEST_LOG",
+        "required_source": "github_actions"
+      }
+    ],
+    "required_data": [
+      "change",
+      "test",
+      "deployment"
+    ],
+    "evaluation_logic": {
+      "rules": [
+        {
+          "subject": "test",
+          "field": "status",
+          "operator": "EQUALS",
+          "value": "PASS"
+        }
+      ],
+      "relationships": [
+        {
+          "subject": "test",
+          "related_subject": "deployment",
+          "operator": "BEFORE",
+          "source_field": "completed_at",
+          "target_field": "deployed_at"
+        }
+      ]
+    }
+  },
+  {
+    "check_id": "CM-003",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-03",
+    "name": "Approval Before Deployment",
+    "description": "Verify that release approval existed prior to production deployment.",
+    "category": "approval",
+    "severity": "high",
+    "required_fields": [
+      "approval.required",
+      "approval.approved",
+      "approval.approved_at",
+      "deployment.deployed_at"
+    ],
+    "applicability": {
+      "field": "approval.required",
+      "operator": "equals",
+      "value": false,
+      "result": "NOT_APPLICABLE"
+    },
+    "logic": {
+      "all": [
+        {
+          "field": "approval.approved",
+          "operator": "equals",
+          "value": true
+        },
+        {
+          "field": "approval.approved_at",
+          "operator": "before",
+          "field_reference": "deployment.deployed_at"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "APPROVAL_RECORD",
+        "required_source": "github"
+      }
+    ],
+    "required_data": [
+      "change",
+      "approval",
+      "deployment"
+    ],
+    "evaluation_logic": {
+      "rules": [
+        {
+          "subject": "approval",
+          "field": "decision",
+          "operator": "EQUALS",
+          "value": "APPROVED"
+        }
+      ],
+      "relationships": [
+        {
+          "subject": "approval",
+          "related_subject": "deployment",
+          "operator": "BEFORE",
+          "source_field": "approved_at",
+          "target_field": "deployed_at"
+        }
+      ]
+    }
+  },
+  {
+    "check_id": "CM-004",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-04",
+    "name": "Segregation of Duties",
+    "description": "Ensures that the change requester, approver, and deployer are distinct users.",
+    "category": "segregation_of_duties",
+    "severity": "high",
+    "required_fields": [
+      "request.requester_id",
+      "approval.approver_id",
+      "deployment.deployed_by"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "request.requester_id",
+          "operator": "not_equal_field",
+          "field_reference": "approval.approver_id"
+        },
+        {
+          "field": "approval.approver_id",
+          "operator": "not_equal_field",
+          "field_reference": "deployment.deployed_by"
+        },
+        {
+          "field": "request.requester_id",
+          "operator": "not_equal_field",
+          "field_reference": "deployment.deployed_by"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "SOD_AUDIT_LOG",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change",
+      "approval",
+      "deployment"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": [
+        {
+          "subject": "change",
+          "related_subject": "approval",
+          "operator": "NOT_MATCH_FIELD",
+          "source_field": "requester_id",
+          "target_field": "approver_id"
+        },
+        {
+          "subject": "approval",
+          "related_subject": "deployment",
+          "operator": "NOT_MATCH_FIELD",
+          "source_field": "approver_id",
+          "target_field": "deployed_by"
+        },
+        {
+          "subject": "change",
+          "related_subject": "deployment",
+          "operator": "NOT_MATCH_FIELD",
+          "source_field": "requester_id",
+          "target_field": "deployed_by"
+        }
+      ]
+    }
+  },
+  {
+    "check_id": "CM-005",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-05",
+    "name": "Change-to-Deployment Traceability",
+    "description": "Verifies that production deployments can be traced directly to an authorized change request.",
+    "category": "traceability",
+    "severity": "critical",
+    "required_fields": [
+      "identity.change_id",
+      "deployment.deployment_id",
+      "authorization.authorized"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "identity.change_id",
+          "operator": "exists"
+        },
+        {
+          "field": "authorization.authorized",
+          "operator": "equals",
+          "value": true
+        }
+      ]
+    },
+    "missing_data_result": "FAIL",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "TRACEABILITY_LINK",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-006",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-01",
+    "name": "Change Documentation",
+    "description": "Verifies that complete documentation metadata exists for the change ticket.",
+    "category": "documentation",
+    "severity": "medium",
+    "required_fields": [
+      "basic_info.title",
+      "basic_info.description"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "basic_info.title",
+          "operator": "exists"
+        },
+        {
+          "field": "basic_info.description",
+          "operator": "exists"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "DOCUMENTATION_METADATA",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change"
+    ],
+    "evaluation_logic": {
+      "rules": [
+        {
+          "subject": "change",
+          "field": "title",
+          "operator": "NOT_EMPTY"
+        },
+        {
+          "subject": "change",
+          "field": "description",
+          "operator": "NOT_EMPTY"
+        },
+        {
+          "subject": "change",
+          "field": "change_type",
+          "operator": "IN",
+          "value": [
+            "NORMAL",
+            "STANDARD",
+            "EMERGENCY"
+          ]
+        },
+        {
+          "subject": "change",
+          "field": "risk_level",
+          "operator": "IN",
+          "value": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ]
+        }
+      ],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-007",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-01",
+    "name": "Change Scope",
+    "description": "Ensures that implementation details and changed components are specified in the metadata.",
+    "category": "documentation",
+    "severity": "medium",
+    "required_fields": [
+      "development.changed_components"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "development.changed_components",
+          "operator": "exists"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "SCOPE_DEFINITION",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-008",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-06",
+    "name": "Emergency Change Control",
+    "description": "Verifies that emergency change policies and retro approvals are met.",
+    "category": "emergency",
+    "severity": "high",
+    "required_fields": [
+      "emergency.is_emergency",
+      "emergency.reason"
+    ],
+    "applicability": {
+      "field": "emergency.is_emergency",
+      "operator": "equals",
+      "value": false,
+      "result": "NOT_APPLICABLE"
+    },
+    "logic": {
+      "all": [
+        {
+          "field": "emergency.reason",
+          "operator": "exists"
+        },
+        {
+          "field": "emergency.retro_approval",
+          "operator": "equals",
+          "value": true
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "EMERGENCY_LOG",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change",
+      "authorization"
+    ],
+    "evaluation_logic": {
+      "rules": [
+        {
+          "subject": "authorization",
+          "field": "justification",
+          "operator": "NOT_EMPTY"
+        }
+      ],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-009",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-07",
+    "name": "Rollback Plan",
+    "description": "Verifies that rollback plans exist and are documented.",
+    "category": "documentation",
+    "severity": "medium",
+    "required_fields": [
+      "rollback.rollback_plan",
+      "rollback.rollback_tested"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "rollback.rollback_plan",
+          "operator": "exists"
+        },
+        {
+          "field": "rollback.rollback_tested",
+          "operator": "equals",
+          "value": true
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "ROLLBACK_PLAN",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-010",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-03",
+    "name": "Deployment Authorization",
+    "description": "Verifies deployment events match authorized changes.",
+    "category": "authorization",
+    "severity": "high",
+    "required_fields": [
+      "deployment.deployment_id",
+      "authorization.authorized"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "authorization.authorized",
+          "operator": "equals",
+          "value": true
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "DEPLOY_AUTH",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-011",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-08",
+    "name": "Change Evidence",
+    "description": "Verifies at least one linked evidence reference is present.",
+    "category": "evidence",
+    "severity": "medium",
+    "required_fields": [
+      "evidence_ids"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "evidence_ids",
+          "operator": "exists"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "EVIDENCE_LOG",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-012",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-09",
+    "name": "Change Lifecycle Completion",
+    "description": "Verifies that the change has completed its defined lifecycle states.",
+    "category": "lifecycle",
+    "severity": "medium",
+    "required_fields": [
+      "basic_info.status"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "basic_info.status",
+          "operator": "equals",
+          "value": "COMPLETED"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "LIFECYCLE_STATUS",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-013",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-10",
+    "name": "Post-Change Review",
+    "description": "Verifies post-change verification is reviewed and linked.",
+    "category": "lifecycle",
+    "severity": "medium",
+    "required_fields": [
+      "basic_info.status",
+      "evidence_ids"
+    ],
+    "applicability": {
+      "field": "basic_info.status",
+      "operator": "not_equals",
+      "value": "COMPLETED",
+      "result": "NOT_APPLICABLE"
+    },
+    "logic": {
+      "all": [
+        {
+          "field": "evidence_ids",
+          "operator": "exists"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "POST_CHANGE_LOG",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change",
+      "post_change_review"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": [
+        {
+          "subject": "change",
+          "related_subject": "post_change_review",
+          "operator": "EXISTS",
+          "source_field": "change_id",
+          "target_field": "change_id"
+        }
+      ]
+    }
+  },
+  {
+    "check_id": "CM-014",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-11",
+    "name": "Configuration Change Control",
+    "description": "Verifies configuration items undergo control audits.",
+    "category": "documentation",
+    "severity": "high",
+    "required_fields": [
+      "development.repository",
+      "basic_info.change_type"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "development.repository",
+          "operator": "exists"
+        }
+      ]
+    },
+    "missing_data_result": "INSUFFICIENT_DATA",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "CI_CONFIG",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change"
+    ],
+    "evaluation_logic": {
+      "rules": [],
+      "relationships": []
+    }
+  },
+  {
+    "check_id": "CM-015",
+    "framework": "SOC2",
+    "criterion": "CC8.1",
+    "control_id": "CM-CONTROL-05",
+    "name": "Unauthorized/BYPASS Change",
+    "description": "Critical bypass alarm: production changes must link to a valid change request.",
+    "category": "traceability",
+    "severity": "critical",
+    "required_fields": [
+      "identity.change_id",
+      "deployment.deployment_id"
+    ],
+    "logic": {
+      "all": [
+        {
+          "field": "identity.change_id",
+          "operator": "exists"
+        }
+      ]
+    },
+    "missing_data_result": "FAIL",
+    "success_result": "PASS",
+    "failure_result": "FAIL",
+    "evidence_requirements": [
+      {
+        "evidence_type": "BYPASS_AUDIT",
+        "required_source": "system"
+      }
+    ],
+    "required_data": [
+      "change",
+      "deployment"
+    ],
+    "evaluation_logic": {
+      "rules": [
+        {
+          "subject": "deployment",
+          "field": "change_id",
+          "operator": "NOT_EXISTS"
+        }
+      ],
+      "relationships": []
+    }
+  }
+]

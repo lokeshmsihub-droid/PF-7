@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-subtle: #FAFAFB;
+  --surface-hover: #F7F8FA;
+  --border: #E8E9ED;
+  --border-light: #F0F1F3;
+  --text-primary: #24262B;
+  --text-secondary: #666A73;
+  --text-muted: #8B8F98;
+  --primary-blue: #5876D8;
+  --primary-blue-light: #EEF2FF;
+  --primary-blue-border: #C9D5FA;
+  --active-orange: #E89562;
+  --success: #3FA76C;
+  --success-light: #EAF7EF;
+  --warning: #C99532;
+  --warning-light: #FFF7E6;
+  --danger: #D96B6B;
+  --danger-light: #FDEEEE;
+  --neutral: #8B8F98;
+  --black: #242424;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text-primary);
+  background-color: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* Custom scrollbars for clean enterprise look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8DAE0;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B4B7C1;
+}

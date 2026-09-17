@@ -1,0 +1,6 @@
+{
+  "name": "Change Management",
+  "description": "Continuously monitor your change management systems to identify change risks, track approvals, and maintain controlled deployments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

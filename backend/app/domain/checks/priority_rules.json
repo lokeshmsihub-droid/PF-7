@@ -1,0 +1,25 @@
+{
+  "severity_weights": {
+    "critical": 4,
+    "high": 3,
+    "medium": 2,
+    "low": 1
+  },
+  "criticality_weights": {
+    "critical": 4,
+    "high": 3,
+    "medium": 2,
+    "low": 1
+  },
+  "impact_weights": {
+    "production": 3,
+    "staging": 2,
+    "development": 1
+  },
+  "thresholds": {
+    "CRITICAL": 8,
+    "HIGH": 6,
+    "MEDIUM": 4,
+    "LOW": 0
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "CM-001": {
+    "MISSING_APPROVAL": {
+      "recommended_action": "Obtain formal manager approval on the Jira change request before deploying to production.",
+      "required_evidence": "Jira authorization/approval log",
+      "verification_method": "Verify Jira change request has decision APPROVED.",
+      "default_priority": "HIGH"
+    },
+    "MISSING_CHANGE_RECORD": {
+      "recommended_action": "Create a corresponding Jira change request record and link it to the pull request.",
+      "required_evidence": "Jira issue key link in the commits/PR",
+      "verification_method": "Verify Jira change request exists and is linked.",
+      "default_priority": "MEDIUM"
+    },
+    "OTHER": {
+      "recommended_action": "Investigate change request details and resolve missing information.",
+      "required_evidence": "Jira change request details",
+      "verification_method": "Verify change request is complete.",
+      "default_priority": "MEDIUM"
+    }
+  },
+  "CM-002": {
+    "FAILED_TEST": {
+      "recommended_action": "Investigate the failed CI pipeline, correct the failure, rerun the required test workflow, and ensure the successful test completes before production deployment.",
+      "required_evidence": "Successful CI test run",
+      "verification_method": "Re-evaluate CM-002 using the latest CURRENT evidence.",
+      "default_priority": "HIGH"
+    },
+    "TEST_AFTER_DEPLOYMENT": {
+      "recommended_action": "Configure the CI/CD pipeline or branch protection rules to enforce testing execution and approval prior to production release.",
+      "required_evidence": "CI test run completed before deployment",
+      "verification_method": "Verify testing timestamp is earlier than deployment timestamp.",
+      "default_priority": "HIGH"
+    },
+    "MISSING_EVIDENCE": {
+      "recommended_action": "Execute the required testing workflow and ensure the execution logs are published.",
+      "required_evidence": "Valid CI test run evidence",
+      "verification_method": "Verify presence of test log evidence.",
+      "default_priority": "MEDIUM"
+    },
+    "OTHER": {
+      "recommended_action": "Verify testing was executed on the deployment commit.",
+      "required_evidence": "Valid CI test run evidence",
+      "verification_method": "Verify testing was completed on deployment commit.",
+      "default_priority": "MEDIUM"
+    }
+  },
+  "CM-003": {
+    "REVIEW_DISMISSED": {
+      "recommended_action": "Submit code changes for review, address reviews, and obtain necessary approval before merging.",
+      "required_evidence": "Valid GitHub review approval",
+      "verification_method": "Verify active GitHub review has approved status.",
+      "default_priority": "HIGH"
+    },
+    "APPROVAL_REVOKED": {
+      "recommended_action": "Address feedback from peer review, resolve conflicts, and obtain a fresh review approval.",
+      "required_evidence": "Valid peer approval record",
+      "verification_method": "Verify approval status.",
+      "default_priority": "HIGH"
+    },
+    "MISSING_APPROVAL": {
+      "recommended_action": "Request code review from an authorized peer reviewer and obtain approval before merging.",
+      "required_evidence": "Valid peer approval record",
+      "verification_method": "Verify peer review approval.",
+      "default_priority": "HIGH"
+    },
+    "OTHER": {
+      "recommended_action": "Verify code changes are approved.",
+      "required_evidence": "Peer approval record",
+      "verification_method": "Verify approval status.",
+      "default_priority": "MEDIUM"
+    }
+  },
+  "CM-004": {
+    "UNAUTHORIZED_DEPLOYMENT": {
+      "recommended_action": "Ensure that the change request requester is segregated from the approver and deployer user roles.",
+      "required_evidence": "Segregation of duties audit log",
+      "verification_method": "Verify SOD audit log proves user role separation.",
+      "default_priority": "HIGH"
+    },
+    "OTHER": {
+      "recommended_action": "Verify that user segregation rules are respected.",
+      "required_evidence": "SOD audit log",
+      "verification_method": "Verify user role segregation.",
+      "default_priority": "HIGH"
+    }
+  },
+  "CM-005": {
+    "COMMIT_DRIFT": {
+      "recommended_action": "Verify that the deployed commit matches the approved commit. Avoid cherry-picking or manual alterations post-approval.",
+      "required_evidence": "Matching deployment and PR commit SHA",
+      "verification_method": "Verify deployment commit matches approved PR commit.",
+      "default_priority": "HIGH"
+    },
+    "TRACEABILITY_FAILURE": {
+      "recommended_action": "Ensure the deployment is linked to an authorized GitHub pull request and Jira issue.",
+      "required_evidence": "Traceability link evidence",
+      "verification_method": "Verify traceability chain is complete.",
+      "default_priority": "HIGH"
+    },
+    "UNAUTHORIZED_DEPLOYMENT": {
+      "recommended_action": "Deploy using authorized pipelines with linked traceability.",
+      "required_evidence": "Traceability link evidence",
+      "verification_method": "Verify trace links.",
+      "default_priority": "HIGH"
+    },
+    "OTHER": {
+      "recommended_action": "Verify traceability details.",
+      "required_evidence": "Traceability link",
+      "verification_method": "Verify trace links.",
+      "default_priority": "MEDIUM"
+    }
+  },
+  "CM-006": {
+    "OTHER": {
+      "recommended_action": "Update documentation metadata details.",
+      "required_evidence": "Documentation metadata",
+      "verification_method": "Verify documentation metadata.",
+      "default_priority": "LOW"
+    }
+  },
+  "CM-007": {
+    "OTHER": {
+      "recommended_action": "Update scope definition details.",
+      "required_evidence": "Scope definition",
+      "verification_method": "Verify scope definition.",
+      "default_priority": "LOW"
+    }
+  },
+  "CM-008": {
+    "APPROVAL_REVOKED": {
+      "recommended_action": "Obtain retrospective authorization for this emergency release within 24 hours.",
+      "required_evidence": "Emergency retrospective approval log",
+      "verification_method": "Verify retrospective approval decision.",
+      "default_priority": "HIGH"
+    },
+    "MISSING_APPROVAL": {
+      "recommended_action": "Obtain retrospective authorization for this emergency release within 24 hours.",
+      "required_evidence": "Emergency retrospective approval log",
+      "verification_method": "Verify retrospective approval decision.",
+      "default_priority": "HIGH"
+    },
+    "OTHER": {
+      "recommended_action": "Obtain retrospective authorization for this emergency release.",
+      "required_evidence": "Emergency approval log",
+      "verification_method": "Verify retrospective approval.",
+      "default_priority": "HIGH"
+    }
+  },
+  "CM-009": {
+    "OTHER": {
+      "recommended_action": "Update rollback plan details.",
+      "required_evidence": "Rollback plan",
+      "verification_method": "Verify rollback plan details.",
+      "default_priority": "LOW"
+    }
+  },
+  "CM-010": {
+    "OTHER": {
+      "recommended_action": "Update deployment authorization details.",
+      "required_evidence": "Deploy authorization record",
+      "verification_method": "Verify deploy authorization details.",
+      "default_priority": "MEDIUM"
+    }
+  },
+  "CM-011": {
+    "OTHER": {
+      "recommended_action": "Update evidence log details.",
+      "required_evidence": "Evidence log record",
+      "verification_method": "Verify evidence log details.",
+      "default_priority": "LOW"
+    }
+  },
+  "CM-012": {
+    "OTHER": {
+      "recommended_action": "Update lifecycle status details.",
+      "required_evidence": "Lifecycle status record",
+      "verification_method": "Verify lifecycle status details.",
+      "default_priority": "LOW"
+    }
+  },
+  "CM-013": {
+    "OTHER": {
+      "recommended_action": "Update post change validation details.",
+      "required_evidence": "Post change log record",
+      "verification_method": "Verify post change log details.",
+      "default_priority": "LOW"
+    }
+  },
+  "CM-014": {
+    "OTHER": {
+      "recommended_action": "Update CI config details.",
+      "required_evidence": "CI config record",
+      "verification_method": "Verify CI config details.",
+      "default_priority": "LOW"
+    }
+  },
+  "CM-015": {
+    "OTHER": {
+      "recommended_action": "Update bypass audit details.",
+      "required_evidence": "Bypass audit record",
+      "verification_method": "Verify bypass audit details.",
+      "default_priority": "LOW"
+    }
+  },
+  "EVIDENCE_INTEGRITY_FAILURE": {
+    "OTHER": {
+      "recommended_action": "The evidence hash failed integrity check. Investigate potential tampering or storage issues and re-collect.",
+      "required_evidence": "Re-collected/fresh evidence with matching integrity hash",
+      "verification_method": "Re-evaluate compliance checking.",
+      "default_priority": "HIGH"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "CM-001": {
+    "name": "Authorization Before Work",
+    "required_canonical_fields": [
+      "authorization.authorized",
+      "authorization.authorized_at",
+      "request.requested_at"
+    ]
+  },
+  "CM-002": {
+    "name": "Testing Before Production",
+    "required_canonical_fields": [
+      "testing.test_status",
+      "testing.tested_at",
+      "deployment.deployed_at"
+    ]
+  },
+  "CM-003": {
+    "name": "Approval Before Deployment",
+    "required_canonical_fields": [
+      "approval.approved",
+      "approval.approved_at",
+      "deployment.deployed_at"
+    ]
+  },
+  "CM-004": {
+    "name": "Segregation of Duties",
+    "required_canonical_fields": [
+      "identity.change_id",
+      "request.requester_id",
+      "approval.approver_id",
+      "deployment.deployed_by"
+    ]
+  },
+  "CM-005": {
+    "name": "Deployment Linked to Authorized Change",
+    "required_canonical_fields": [
+      "deployment.deployment_id",
+      "identity.change_id",
+      "authorization.authorized",
+      "evidence_ids"
+    ]
+  }
+}

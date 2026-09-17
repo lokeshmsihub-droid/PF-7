@@ -1,0 +1,14 @@
+{
+  "sla_days": {
+    "CRITICAL": 1,
+    "HIGH": 3,
+    "MEDIUM": 7,
+    "LOW": 14
+  },
+  "due_soon_hours": {
+    "CRITICAL": 4,
+    "HIGH": 12,
+    "MEDIUM": 24,
+    "LOW": 48
+  }
+}

@@ -1,16 +1,15 @@
 import React from 'react';
-import { GitBranch, Settings, ShieldCheck, ShieldAlert, ChevronRight } from 'lucide-react';
+import { GitBranch, Settings, ShieldCheck, ChevronRight } from 'lucide-react';
 
-export type NavItem = 'change-management' | 'vulnerabilities' | 'settings';
+export type NavItem = 'change-management' | 'settings';
 
 interface SidebarProps {
   activeNav: NavItem;
   onSelectNav: (nav: NavItem) => void;
   onOpenSettings: () => void;
-  vulnerabilityCount?: number;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeNav, onSelectNav, onOpenSettings, vulnerabilityCount }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeNav, onSelectNav, onOpenSettings }) => {
   return (
     <aside
       id="app-sidebar"
@@ -41,47 +40,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeNav, onSelectNav, onOpen
           <button
             id="nav-change-management"
             onClick={() => onSelectNav('change-management')}
-            className={`w-full relative flex items-center gap-3 px-3.5 py-2.5 rounded-md text-[13px] font-medium transition-colors text-left ${activeNav === 'change-management'
-              ? 'bg-[#F7F8FA] text-[#24262B] font-semibold'
-              : 'text-[#666A73] hover:bg-[#FAFAFB] hover:text-[#24262B]'
-              }`}
+            className={`w-full relative flex items-center gap-3 px-3.5 py-2.5 rounded-md text-[13px] font-medium transition-colors text-left ${
+              activeNav === 'change-management'
+                ? 'bg-[#F7F8FA] text-[#24262B] font-semibold'
+                : 'text-[#666A73] hover:bg-[#FAFAFB] hover:text-[#24262B]'
+            }`}
           >
             {/* Orange Active Indicator */}
             {activeNav === 'change-management' && (
               <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#E89562] rounded-r" />
             )}
             <GitBranch
-              className={`w-4 h-4 shrink-0 ${activeNav === 'change-management' ? 'text-[#5876D8]' : 'text-[#8B8F98]'
-                }`}
+              className={`w-4 h-4 shrink-0 ${
+                activeNav === 'change-management' ? 'text-[#5876D8]' : 'text-[#8B8F98]'
+              }`}
             />
             <span className="truncate">Change Management</span>
-          </button>
-
-          {/* Vulnerabilities Item */}
-          <button
-            id="nav-vulnerabilities"
-            onClick={() => onSelectNav('vulnerabilities')}
-            className={`w-full relative flex items-center justify-between px-3.5 py-2.5 rounded-md text-[13px] font-medium transition-colors text-left ${activeNav === 'vulnerabilities'
-              ? 'bg-[#F7F8FA] text-[#24262B] font-semibold'
-              : 'text-[#666A73] hover:bg-[#FAFAFB] hover:text-[#24262B]'
-              }`}
-          >
-            {/* Orange Active Indicator */}
-            {activeNav === 'vulnerabilities' && (
-              <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#E89562] rounded-r" />
-            )}
-            <div className="flex items-center gap-3 min-w-0">
-              <ShieldAlert
-                className={`w-4 h-4 shrink-0 ${activeNav === 'vulnerabilities' ? 'text-[#DC2626]' : 'text-[#8B8F98]'
-                  }`}
-              />
-              <span className="truncate">Vulnerabilities</span>
-            </div>
-            {typeof vulnerabilityCount === 'number' && vulnerabilityCount > 0 && (
-              <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-[#FEF2F2] text-[#DC2626] border border-[#FCA5A5] leading-none">
-                {vulnerabilityCount}
-              </span>
-            )}
           </button>
 
           {/* Settings Utility Item */}
@@ -91,17 +65,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeNav, onSelectNav, onOpen
               onSelectNav('settings');
               onOpenSettings();
             }}
-            className={`w-full relative flex items-center gap-3 px-3.5 py-2.5 rounded-md text-[13px] font-medium transition-colors text-left ${activeNav === 'settings'
-              ? 'bg-[#F7F8FA] text-[#24262B] font-semibold'
-              : 'text-[#666A73] hover:bg-[#FAFAFB] hover:text-[#24262B]'
-              }`}
+            className={`w-full relative flex items-center gap-3 px-3.5 py-2.5 rounded-md text-[13px] font-medium transition-colors text-left ${
+              activeNav === 'settings'
+                ? 'bg-[#F7F8FA] text-[#24262B] font-semibold'
+                : 'text-[#666A73] hover:bg-[#FAFAFB] hover:text-[#24262B]'
+            }`}
           >
             {activeNav === 'settings' && (
               <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#E89562] rounded-r" />
             )}
             <Settings
-              className={`w-4 h-4 shrink-0 ${activeNav === 'settings' ? 'text-[#5876D8]' : 'text-[#8B8F98]'
-                }`}
+              className={`w-4 h-4 shrink-0 ${
+                activeNav === 'settings' ? 'text-[#5876D8]' : 'text-[#8B8F98]'
+              }`}
             />
             <span className="truncate">Settings</span>
           </button>

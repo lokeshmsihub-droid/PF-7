@@ -1,8 +1,0 @@
-{
-  "venvPath": "/Users/lokesh/Documents/Compliance_KB",
-  "venv": "venv",
-  "extraPaths": [
-    "/Users/lokesh/Documents/Compliance_KB/venv/lib/python3.14/site-packages",
-    "/Users/lokesh/Documents/semgrep repo"
-  ]
-}

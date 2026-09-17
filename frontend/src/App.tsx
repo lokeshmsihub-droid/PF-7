@@ -3,7 +3,7 @@ import { Plus, RefreshCw, GitBranch } from 'lucide-react';
 import { System, Control, ToastNotification, MonitoringOverview, MonitoringEvent } from './types';
 import { integrationService } from './services/integrationService';
 import { monitoringService } from './services/monitoringService';
-import { Sidebar } from './components/Sidebar';
+import { Sidebar, NavItem } from './components/Sidebar';
 import { Header } from './components/Header';
 import { SystemTable } from './components/SystemTable';
 import { SystemDetailsPage } from './components/SystemDetailsPage';
@@ -14,9 +14,6 @@ import { ViewFixDrawer } from './components/ViewFixDrawer';
 import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { SettingsModal } from './components/SettingsModal';
 import { ToastContainer } from './components/ToastContainer';
-import { VulnerabilityPage } from './components/VulnerabilityPage';
-import { vulnerabilityService } from './services/vulnerabilityService';
-import { NavItem } from './components/Sidebar';
 
 type MainTopTab = 'systems' | 'monitoring';
 
@@ -24,8 +21,6 @@ export default function App() {
   // Navigation & View State
   const [activeNav, setActiveNav] = useState<NavItem>('change-management');
   const [activeTopTab, setActiveTopTab] = useState<MainTopTab>('systems');
-  const [selectedRepoForVulns, setSelectedRepoForVulns] = useState<string | null>(null);
-  const [vulnerabilityCount, setVulnerabilityCount] = useState<number>(0);
   const [selectedSystemId, setSelectedSystemId] = useState<string | null>(() => {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('system_id') || null;
@@ -77,11 +72,10 @@ export default function App() {
   // Fetch initial data
   const loadInitialData = useCallback(async () => {
     setIsRefreshing(true);
-    const [sysList, ov, evts, findings] = await Promise.all([
+    const [sysList, ov, evts] = await Promise.all([
       integrationService.getSystems(),
       monitoringService.getMonitoringOverview(),
       monitoringService.getMonitoringActivity(),
-      vulnerabilityService.getFindings(),
     ]);
     setSystems(sysList);
     setMonitoringOverview({
@@ -89,7 +83,6 @@ export default function App() {
       activeSystems: ov.activeSystems > 0 ? ov.activeSystems : (sysList.length || 3),
     });
     setMonitoringEvents(evts);
-    setVulnerabilityCount(findings.filter((f) => f.severity === 'CRITICAL' || f.severity === 'HIGH').length);
     setIsRefreshing(false);
   }, []);
 
@@ -99,9 +92,6 @@ export default function App() {
     // Subscribe to system store changes
     const unsubSystem = integrationService.subscribe(() => {
       integrationService.getSystems().then(setSystems);
-      vulnerabilityService.getFindings().then((f) => {
-        setVulnerabilityCount(f.filter((item) => item.severity === 'CRITICAL' || item.severity === 'HIGH').length);
-      });
     });
 
     // Subscribe to continuous live monitoring events from SSE & backend
@@ -109,9 +99,6 @@ export default function App() {
       integrationService.getSystems().then(setSystems);
       monitoringService.getMonitoringOverview().then(setMonitoringOverview);
       monitoringService.getMonitoringActivity().then(setMonitoringEvents);
-      vulnerabilityService.getFindings().then((f) => {
-        setVulnerabilityCount(f.filter((item) => item.severity === 'CRITICAL' || item.severity === 'HIGH').length);
-      });
     });
 
     // Continuous background sync interval (polls every 10 seconds for real-time monitoring)
@@ -133,15 +120,7 @@ export default function App() {
     : null;
 
   // Header Breadcrumbs calculation
-  const breadcrumbs = activeNav === 'vulnerabilities'
-    ? [
-        {
-          label: 'Vulnerability Management',
-          onClick: () => setSelectedRepoForVulns(null),
-        },
-        ...(selectedRepoForVulns ? [{ label: selectedRepoForVulns }] : []),
-      ]
-    : activeSystem
+  const breadcrumbs = activeSystem
     ? [
       {
         label: 'Change Management',
@@ -185,14 +164,8 @@ export default function App() {
       {/* Fixed Left Sidebar */}
       <Sidebar
         activeNav={activeNav}
-        onSelectNav={(nav) => {
-          setActiveNav(nav);
-          if (nav !== 'vulnerabilities') {
-            setSelectedRepoForVulns(null);
-          }
-        }}
+        onSelectNav={(nav) => setActiveNav(nav)}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        vulnerabilityCount={vulnerabilityCount}
       />
 
       {/* Main Content Area */}
@@ -203,7 +176,7 @@ export default function App() {
           onRefreshAll={async () => {
             setIsRefreshing(true);
             await loadInitialData();
-            addToast('success', 'Synchronized change-control status and repository security posture.');
+            addToast('success', 'Synchronized change-control status and repository compliance.');
           }}
           isRefreshing={isRefreshing}
         />
@@ -211,14 +184,7 @@ export default function App() {
         {/* Scrollable Main Body */}
         <main className="flex-1 overflow-y-auto px-8 py-6">
           <div className="max-w-[1240px] mx-auto space-y-6">
-            {/* View Switching */}
-            {activeNav === 'vulnerabilities' ? (
-              <VulnerabilityPage
-                onShowToast={addToast}
-                filterRepoName={selectedRepoForVulns}
-                onOpenAddSystem={() => setIsAddDrawerOpen(true)}
-              />
-            ) : activeSystem ? (
+            {activeSystem ? (
               <SystemDetailsPage
                 system={activeSystem}
                 allSystems={systems}
@@ -226,10 +192,6 @@ export default function App() {
                 onOpenManage={() => setManageSystem(activeSystem)}
                 onOpenViewFix={(ctrl) => setViewFixControl(ctrl)}
                 onBackToSystems={() => handleSelectSystemId(null)}
-                onNavigateToVulnerabilities={(repoName) => {
-                  setActiveNav('vulnerabilities');
-                  setSelectedRepoForVulns(repoName || null);
-                }}
               />
             ) : (
               /* Change Management List & Overview */

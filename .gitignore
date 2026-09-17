@@ -41,9 +41,6 @@ htmlcov/
 backend/compliance.db
 backend/test.db
 backend/sql_app.db
-vulnerablity/compliance.db
-vulnerablity/sql_app.db
-vulnerablity/vulnerabilities.db
 
 # Environment variables & secrets
 .env
@@ -57,11 +54,6 @@ yarn-debug.log*
 yarn-error.log*
 frontend/dist/
 frontend/node_modules/
-vulnerablity/node_modules/
-
-# Third party large vendor tools / external repos
-vulnerablity/third_party/
-third_party/
 
 # IDE / Editor
 .vscode/

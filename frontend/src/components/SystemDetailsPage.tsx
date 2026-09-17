@@ -18,14 +18,12 @@ import {
   ChevronRight,
   Database,
   FileJson,
-  ShieldAlert,
 } from 'lucide-react';
-import { System, Control, Repository, PullRequest, Pipeline, MonitoringEvent, MonitoringOverview, VulnerabilityFinding } from '../types';
+import { System, Control, Repository, PullRequest, Pipeline, MonitoringEvent, MonitoringOverview } from '../types';
 import { ProviderIcon } from './ProviderIcon';
 import { controlService } from '../services/controlService';
 import { changeService } from '../services/changeService';
 import { monitoringService } from '../services/monitoringService';
-import { vulnerabilityService } from '../services/vulnerabilityService';
 import { BranchProtectionModal } from './BranchProtectionModal';
 import { RepoDetailsModal } from './RepoDetailsModal';
 import { PRDetailsModal } from './PRDetailsModal';
@@ -40,7 +38,6 @@ interface SystemDetailsPageProps {
   onOpenManage: () => void;
   onOpenViewFix: (control: Control) => void;
   onBackToSystems: () => void;
-  onNavigateToVulnerabilities?: (repoName?: string) => void;
 }
 
 type DetailTab =
@@ -49,7 +46,6 @@ type DetailTab =
   | 'integration-branches'
   | 'peer-reviews'
   | 'cicd'
-  | 'vulnerabilities'
   | 'change-tickets'
   | 'approvals'
   | 'traceability'
@@ -62,10 +58,8 @@ export const SystemDetailsPage: React.FC<SystemDetailsPageProps> = ({
   onOpenManage,
   onOpenViewFix,
   onBackToSystems,
-  onNavigateToVulnerabilities,
 }) => {
   const [activeTab, setActiveTab] = useState<DetailTab>('summary');
-  const [systemFindings, setSystemFindings] = useState<VulnerabilityFinding[]>([]);
 
   // Loaded data
   const [controls, setControls] = useState<Control[]>([]);
@@ -157,18 +151,6 @@ export const SystemDetailsPage: React.FC<SystemDetailsPageProps> = ({
       if (pipeRes.status === 'fulfilled' && pipeRes.value) setPipelines(pipeRes.value);
       if (chgRes.status === 'fulfilled' && chgRes.value) setChanges(chgRes.value);
       if (evtsRes.status === 'fulfilled' && evtsRes.value) setMonitoringEvents(evtsRes.value);
-    });
-
-    // 4. Fetch security & vulnerability findings for this system
-    vulnerabilityService.getFindings().then((allFindings) => {
-      const filtered = allFindings.filter((f) => {
-        if (!system.selectedReposList || system.selectedReposList.length === 0) return true;
-        return system.selectedReposList.some((r) =>
-          f.repository_name?.toLowerCase().includes(r.toLowerCase()) ||
-          r.toLowerCase().includes(f.repository_name?.toLowerCase())
-        );
-      });
-      setSystemFindings(filtered);
     });
   };
 
@@ -383,22 +365,6 @@ export const SystemDetailsPage: React.FC<SystemDetailsPageProps> = ({
               >
                 CI/CD
               </button>
-              <button
-                id="tab-vulnerabilities"
-                onClick={() => setActiveTab('vulnerabilities')}
-                className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-all flex items-center gap-1.5 ${
-                  activeTab === 'vulnerabilities'
-                    ? 'bg-[#EEF2FF] text-[#5876D8] border border-[#C9D5FA]'
-                    : 'text-[#666A73] hover:text-[#24262B] hover:bg-[#FAFAFB]'
-                }`}
-              >
-                <span>Vulnerabilities</span>
-                {systemFindings.length > 0 && (
-                  <span className="px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-[#FEF2F2] text-[#DC2626] border border-[#FCA5A5] leading-none">
-                    {systemFindings.length}
-                  </span>
-                )}
-              </button>
             </>
           )}
 
@@ -525,21 +491,6 @@ export const SystemDetailsPage: React.FC<SystemDetailsPageProps> = ({
                   <span className="w-2 h-2 rounded-full bg-[#8B8F98]" />
                   0 due
                 </span>
-              </div>
-
-              {/* Vulnerability Posture Quick Link */}
-              <div 
-                onClick={() => setActiveTab('vulnerabilities')}
-                className="mt-1 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAFAFB] hover:bg-[#EEF2FF] border border-[#E8E9ED] hover:border-[#C9D5FA] text-[12px] text-[#24262B] cursor-pointer transition-colors"
-              >
-                <ShieldAlert className="w-3.5 h-3.5 text-[#DC2626]" />
-                <span>
-                  Security Posture:{' '}
-                  <strong className={systemFindings.length > 0 ? 'text-[#DC2626]' : 'text-[#16A34A]'}>
-                    {systemFindings.length} vulnerabilities detected
-                  </strong>
-                </span>
-                <ChevronRight className="w-3 h-3 text-[#8B8F98]" />
               </div>
             </div>
           )}
@@ -1112,122 +1063,7 @@ export const SystemDetailsPage: React.FC<SystemDetailsPageProps> = ({
         </div>
       )}
 
-      {/* ======================================================== */}
-      {/* 4E. VULNERABILITIES TAB (Multi-Engine System Security)   */}
-      {/* ======================================================== */}
-      {activeTab === 'vulnerabilities' && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-[15px] font-semibold text-[#24262B]">
-                Security Vulnerabilities ({systemFindings.length})
-              </h3>
-              <p className="text-[12px] text-[#666A73]">
-                Static application security testing (SAST), software composition analysis (SCA), and secrets detection across repositories in {system.name}.
-              </p>
-            </div>
-            {onNavigateToVulnerabilities && (
-              <button
-                onClick={() => onNavigateToVulnerabilities()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-[#5876D8] hover:bg-[#4863BD] rounded-md transition-colors shadow-2xs self-start"
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                <span>Open in Vulnerability Management</span>
-              </button>
-            )}
-          </div>
 
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3.5 rounded-lg bg-white border border-[#E8E9ED] shadow-2xs space-y-1">
-              <span className="text-[11px] font-semibold text-[#8B8F98] uppercase">Total Findings</span>
-              <div className="text-[20px] font-bold text-[#24262B]">{systemFindings.length}</div>
-            </div>
-            <div className="p-3.5 rounded-lg bg-white border border-[#E8E9ED] shadow-2xs space-y-1">
-              <span className="text-[11px] font-semibold text-[#DC2626] uppercase">Critical (SLA 7d)</span>
-              <div className="text-[20px] font-bold text-[#DC2626]">
-                {systemFindings.filter((f) => f.severity === 'CRITICAL').length}
-              </div>
-            </div>
-            <div className="p-3.5 rounded-lg bg-white border border-[#E8E9ED] shadow-2xs space-y-1">
-              <span className="text-[11px] font-semibold text-[#EA580C] uppercase">High (SLA 30d)</span>
-              <div className="text-[20px] font-bold text-[#EA580C]">
-                {systemFindings.filter((f) => f.severity === 'HIGH').length}
-              </div>
-            </div>
-            <div className="p-3.5 rounded-lg bg-white border border-[#E8E9ED] shadow-2xs space-y-1">
-              <span className="text-[11px] font-semibold text-[#16A34A] uppercase">Scanner Engines</span>
-              <div className="text-[20px] font-bold text-[#16A34A]">4 Active</div>
-            </div>
-          </div>
-
-          {/* Table of System Findings */}
-          <div className="bg-white border border-[#E8E9ED] rounded-lg overflow-hidden shadow-2xs">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#E8E9ED] bg-[#FAFAFB] text-[11px] font-semibold text-[#666A73] uppercase tracking-wider">
-                  <th className="py-3 px-4">Vulnerability Title</th>
-                  <th className="py-3 px-4">Severity</th>
-                  <th className="py-3 px-4">Engine</th>
-                  <th className="py-3 px-4">File Location</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#F0F1F3] text-[13px]">
-                {systemFindings.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-[#8B8F98]">
-                      No vulnerabilities detected across repositories in this system.
-                    </td>
-                  </tr>
-                ) : (
-                  systemFindings.map((finding) => (
-                    <tr key={finding.id} className="hover:bg-[#FAFAFB] transition-colors">
-                      <td className="py-3 px-4 max-w-sm">
-                        <div className="font-semibold text-[#24262B]">{finding.title}</div>
-                        <div className="text-[11px] text-[#8B8F98] font-mono truncate">{finding.rule_id}</div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full border ${
-                          finding.severity === 'CRITICAL' ? 'bg-[#FEF2F2] text-[#DC2626] border-[#FCA5A5]' :
-                          finding.severity === 'HIGH' ? 'bg-[#FFF7ED] text-[#EA580C] border-[#FDBA74]' :
-                          'bg-[#FFFBEB] text-[#D97706] border-[#FDE68A]'
-                        }`}>
-                          {finding.severity}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-[12px] font-medium text-[#5876D8]">
-                        {finding.scanner.toUpperCase()}
-                      </td>
-                      <td className="py-3 px-4 font-mono text-[11px] text-[#666A73] truncate max-w-xs">
-                        {finding.file_path}:{finding.start_line}
-                      </td>
-                      <td className="py-3 px-4 text-[12px]">
-                        {finding.status === 'RESOLVED' ? (
-                          <span className="text-[#16A34A] font-medium">✓ Resolved</span>
-                        ) : (
-                          <span className="text-[#DC2626] font-medium">⚠ Open</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        {onNavigateToVulnerabilities && (
-                          <button
-                            onClick={() => onNavigateToVulnerabilities(finding.repository_name)}
-                            className="text-[12px] font-medium text-[#5876D8] hover:underline"
-                          >
-                            Inspect →
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
 
       {/* ======================================================== */}
       {/* ======================================================== */}
